@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Contact List</title>
+  </head>
+  <body>
+    <h1>Contact List</h1>
+    <a href="/register">Register</a> |
+    <a href="/login">Login</a>
+    <h2>Add Contact</h2>
+    <form method="post" action="/api/contacts/">
+      <label for="name">Name:</label>
+      <input type="text" name="name" required />
+      <label for="last_name">Last Name:</label>
+      <input type="text" name="last_name" required />
+      <label for="e_mail">Email:</label>
+      <input type="text" name="e_mail" required />
+      <label for="born_date">Borb date:</label>
+      <input type="text" name="born_date" required />
+      <label for="description">Description:</label>
+      <input type="text" name="description" required />
+      <button type="submit">Add Contact</button>
+    </form>
+
+    <h2>Search Contact by ID</h2>
+    <form method="get" action="/api/contacts/">
+      <label for="contact_id">Contact ID:</label>
+      <input type="number" name="contact_id" required />
+      <button type="submit">Search Contact by ID</button>
+    </form>
+    <h2>Read Contacts</h2>
+    <form method="get" action="/api/contacts/">
+      <button type="submit">Read Contacts</button>
+    </form>
+
+    <h2>Search Contacts</h2>
+    <form method="get" action="/api/contacts/search_by/">
+      <label for="name">Name:</label>
+      <input type="text" name="name" />
+      <label for="last_name">Last Name:</label>
+      <input type="text" name="last_name" />
+      <label for="e_mail">Email:</label>
+      <input type="text" name="e_mail" />
+      <button type="submit">Search Contacts</button>
+    </form>
+
+    <h2>Upcoming Birthdays</h2>
+    <form method="get" action="/api/contacts/upcoming_birthdays/">
+      <button type="submit">Upcoming Birthdays</button>
+    </form>
+  </body>
+</html>

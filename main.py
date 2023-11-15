@@ -1,50 +1,57 @@
-from pathlib import Path
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, FileResponse
+from libgravatar import Gravatar
+import pathlib
+from src.database.db import get_db
+from src.routes import auth, notes, tags, contacts
 
-import uvicorn
-from fastapi import FastAPI, BackgroundTasks
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
-from pydantic import EmailStr, BaseModel
-from typing import List
-
-
-class EmailSchema(BaseModel):
-    email: EmailStr
-
-
-conf = ConnectionConfig(
-    MAIL_USERNAME="olegdenko@meta.ua",
-    MAIL_PASSWORD="secretPassword357",
-    MAIL_FROM="olegdenko@meta.ua",
-    MAIL_PORT=465,
-    MAIL_SERVER="smtp.meta.ua",
-    MAIL_FROM_NAME="Example email",
-    MAIL_STARTTLS=False,
-    MAIL_SSL_TLS=True,
-    USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True,
-    TEMPLATE_FOLDER=Path(__file__).parent / "templates",
-)
 
 app = FastAPI()
 
+app.include_router(auth.router, prefix="/api")
+# app.include_router(tags.router, prefix="/api")
+# app.include_router(notes.router, prefix="/api")
+app.include_router(contacts.router, prefix="/api")
 
-@app.post("/send-email")
-async def send_in_background(background_tasks: BackgroundTasks, body: EmailSchema):
-    message = MessageSchema(
-        subject="Fastapi mail module",
-        recipients=[body.email],
-        template_body={"fullname": "Billy Jones"},
-        subtype=MessageType.html,
+templates = Jinja2Templates(directory="src/templates")
+
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
+
+favicon_path = pathlib.Path("src/favicon/favicon.ico")
+
+
+@app.get("/favicon.ico", response_class=FileResponse)
+def get_favicon():
+    return favicon_path
+
+
+@app.get("/", response_class=HTMLResponse, description="Main Page")
+async def home(request: Request):
+    return templates.TemplateResponse(
+        "home.html", {"request": request, "title": "My App"}
     )
 
-    fm = FastMail(conf)
 
-    background_tasks.add_task(
-        fm.send_message, message, template_name="example_email.html"
+@app.get("/login", response_class=HTMLResponse, description="Login")
+async def login(request: Request):
+    return templates.TemplateResponse(
+        "login.html", {"request": request, "title": "My App"}
     )
 
-    return {"message": "email has been sent"}
+
+@app.get("/register", response_class=HTMLResponse, description="Sign Up")
+async def register(request: Request):
+    return templates.TemplateResponse(
+        "register.html", {"request": request, "title": "My App"}
+    )
 
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", port=8000, reload=True)
+@app.get("/api/healthchaker")
+def healthchaker(db, Session=Depends(get_db)):
+    return {"message": "Hello World"}
+
+
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", host="localhost", port="8000", reload=True)
