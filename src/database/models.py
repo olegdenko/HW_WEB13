@@ -23,6 +23,7 @@ class User(Base):
     refresh_token = Column(String(255), nullable=True)
     avatar = Column(String(255), nullable=False)
     roles = Column("roles", Enum(Role), default=Role.user)
+    confirmed = Column(Boolean, default=False)
 
 
 note_m2m_tag = Table(

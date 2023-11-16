@@ -26,3 +26,11 @@
 
 Реалізуйте механізм скидання паролю для зареєстрованого користувача;
 Усі змінні середовища повинні зберігатися у файлі .env та використовуватися у файлі settings.py;
+
+Команди:
+
+docker-compose up
+docker-compose down
+docker-compose ps
+docker-compose logs
+docker-compose exec <ім'я служби <команда>> --> docker-compose exce redis redis-cll
