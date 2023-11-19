@@ -1,3 +1,4 @@
+import logging
 import redis.asyncio as redis
 import asyncio
 import uvicorn
@@ -9,6 +10,8 @@ from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from typing import Callable
 import pathlib
 
+from sqlalchemy.orm import Session
+
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,8 +20,12 @@ from src.database.db import get_db
 from src.routes import auth, notes, tags, contacts
 from src.conf.config import settings
 
+logging.basicConfig(level=logging.DEBUG)
+
+
 app = FastAPI()
-origins = ["http://localhost:3000", "http://localhost:8000"]
+origins = ["http://localhost:3000"]
+# origins = ["*"]
 banned_ips = [
     ip_address("192.168.1.1"),
     ip_address("192.168.1.2"),
@@ -33,12 +40,13 @@ ALLOWED_IPS = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(auth.router, prefix="/api")
+# app.include_router(tags.router, prefix="/api")
+# app.include_router(notes.router, prefix="/api")
 app.include_router(contacts.router, prefix="/api")
 
 templates = Jinja2Templates(directory="templates")
@@ -57,6 +65,18 @@ async def ban_ips(request: Request, call_next: Callable):
         )
     response = await call_next(request)
     return response
+
+
+# @app.middleware("http")
+# async def limit_access_by_ip(request: Request, call_next: Callable):
+#     ip = ip_address(request.client.host)
+#     if ip not in ALLOWED_IPS:
+#         return JSONResponse(
+#             status_code=status.HTTP_403_FORBIDDEN,
+#             content={"detail": "Not allowed IP address"},
+#         )
+#     response = await call_next(request)
+#     return response
 
 
 @app.on_event("startup")
@@ -109,7 +129,7 @@ async def register(request: Request):
 
 
 @app.get("/api/healthchaker")
-def healthchaker(db, Session=Depends(get_db)):
+def healthchaker(db: Session = Depends(get_db)):
     return {"message": "Hello World"}
 
 
