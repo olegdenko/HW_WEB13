@@ -16,15 +16,11 @@ from fastapi.security import (
 )
 from sqlalchemy.orm import Session
 from src.services.e_mail import send_email
-
 from src.schemas import UserModel, UserResponse, TokenModel, RequestEmail
 
 from src.database.db import get_db
 from src.repository import users as repository_users
 from src.services.auth import auth_servise
-
-# from src.database.models import User
-from src.schemas import UserModel, UserResponse, TokenModel
 
 
 # hash_handler = Hash()
@@ -52,10 +48,14 @@ async def signup(
     background_tasks.add_task(
         send_email, new_user.email, new_user.username, request.base_url
     )
-    return {
-        "user": new_user,
-        "detail": "User successfully created. Check your email for confirmation.",
-    }
+
+    return UserResponse(
+        id=new_user.id,
+        username=new_user.username,
+        email=new_user.email,
+        avatar=new_user.avatar,
+        roles=new_user.roles,
+    )
 
 
 @router.post("/login", response_model=TokenModel)

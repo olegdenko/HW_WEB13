@@ -1,8 +1,10 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi_limiter.depends import RateLimiter
 
 from sqlalchemy.orm import Session
+
 from src.database.models import Role, User
 from src.database.db import get_db
 from src.schemas import (
@@ -26,7 +28,11 @@ allowed_operation_remove = RoleAccess([Role.admin])
 @router.get(
     "/",
     response_model=List[ContactResponse],
-    dependencies=[Depends(allowed_operation_get)],
+    dependencies=[
+        Depends(allowed_operation_get),
+        Depends(RateLimiter(times=10, seconds=60)),
+    ],
+    description="No more than 10 requests per minute",
 )
 async def read_contacts(
     skip: int = 0,

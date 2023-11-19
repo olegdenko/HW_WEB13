@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -10,8 +10,14 @@ class Settings(BaseSettings):
     mail_from: str
     mail_port: int
     mail_server: str
-    redis_host: str = "localhost"
-    redis_port: int = 6379
+    redis: str
+    redis_host: str
+    redis_port: int
+    postgres_db: str
+    postgres_user: str
+    postgres_password: str
+    postgres_port: int
+    postgres_host: str
 
     class Config:
         env_file = ".env"

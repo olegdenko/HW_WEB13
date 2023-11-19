@@ -1,3 +1,5 @@
+import redis
+import pickle
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -12,12 +14,15 @@ from starlette import status
 from src.repository import users as repository_users
 from src.database.db import get_db
 
+from src.conf.config import settings
+
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = "secret_key"
-    ALGORITHM = "HS256"
+    SECRET_KEY = settings.secret_key
+    ALGORITHM = settings.algorithm
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+    r = redis.Redis(host=settings.redis_host, port=settings.redis_port, db=0)
 
     def create_email_token(self, data: dict):
         to_encode = data.copy()
@@ -86,11 +91,15 @@ class Auth:
                 raise credentials_exception
         except JWTError as e:
             raise credentials_exception
-
-        # user: User = db.query(User).filter(User.email == email).first()
-        user = await repository_users.get_user_by_email(email, db)
+        user = self.r.get(f"user:{email}")
         if user is None:
-            raise credentials_exception
+            user = await repository_users.get_user_by_email(email, db)
+            if user is None:
+                raise credentials_exception
+            self.r.set(f"user:{email}", pickle.dumps(user))
+            self.r.expire(f"user:{email}", 900)
+        else:
+            user = pickle.loads(user)
         return user
 
     async def decode_refresh_token(self, refresh_token: str):

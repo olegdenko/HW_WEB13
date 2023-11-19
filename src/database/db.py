@@ -1,21 +1,25 @@
-import configparser
-import pathlib
+# import configparser
+# import pathlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from src.conf.config import settings
 
 
-file_config = pathlib.Path(__file__).parent.parent.joinpath("conf/config.ini")
-config = configparser.ConfigParser()
-config.read(file_config)
+# file_config = pathlib.Path(__file__).parent.parent.joinpath("conf/config.ini")
+# config = configparser.ConfigParser()
+# config.read(file_config)
 
-db = config.get("DEV_DB", "DB")
-username = config.get("DEV_DB", "USER")
-password = config.get("DEV_DB", "PASSWORD")
-domain = config.get("DEV_DB", "DOMAIN")
-port = config.get("DEV_DB", "PORT")
-database = config.get("DEV_DB", "DB_NAME")
+# db = config.get("DEV_DB", "DB")
+# username = config.get("DEV_DB", "USER")
+# password = config.get("DEV_DB", "PASSWORD")
+# domain = config.get("DEV_DB", "DOMAIN")
+# port = config.get("DEV_DB", "PORT")
+# database = config.get("DEV_DB", "DB_NAME")
 
-URI = f"{db}://{username}:{password}@{domain}:{port}/{database}"
+
+# URI = f"{db}://{username}:{password}@{domain}:{port}/{database}"
+
+URI = settings.sqlalchemy_database_url
 
 engine = create_engine(URI)
 
