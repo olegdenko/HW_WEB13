@@ -67,18 +67,6 @@ async def ban_ips(request: Request, call_next: Callable):
     return response
 
 
-# @app.middleware("http")
-# async def limit_access_by_ip(request: Request, call_next: Callable):
-#     ip = ip_address(request.client.host)
-#     if ip not in ALLOWED_IPS:
-#         return JSONResponse(
-#             status_code=status.HTTP_403_FORBIDDEN,
-#             content={"detail": "Not allowed IP address"},
-#         )
-#     response = await call_next(request)
-#     return response
-
-
 @app.on_event("startup")
 async def startup():
     await asyncio.sleep(1)

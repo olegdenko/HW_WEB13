@@ -1,7 +1,8 @@
 from datetime import datetime
 from datetime import date
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field, EmailStr
+from fastapi import UploadFile
 
 from src.database.models import Role
 
@@ -11,6 +12,7 @@ class UserModel(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6, max_length=8)
     roles: Role
+    avatar: Optional[UploadFile] = None
 
 
 class DateModel(BaseModel):

@@ -18,6 +18,22 @@ async def create_user(body: UserModel, db: Session):
     return new_user
 
 
+# TODO додавання аватару
+
+# async def create_user(body: UserModel, db: Session):
+#     g = Gravatar(body.email)
+#     avatar_url = g.get_image()
+#     if body.avatar:
+#         contents = await body.avatar.read()
+#         avatar_url = save_uploaded_file(contents, body.avatar.filename)
+
+#     new_user = User(**body.model_dump(), avatar=avatar_url)
+#     db.add(new_user)
+#     db.commit()
+#     db.refresh(new_user)
+#     return new_user
+
+
 async def update_token(user: User, refresh_token, db: Session):
     user.refresh_token = refresh_token
     db.commit()

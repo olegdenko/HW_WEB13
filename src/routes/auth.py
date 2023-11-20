@@ -46,8 +46,8 @@ async def signup(
     new_user = await repository_users.create_user(body, db)
 
     background_tasks.add_task(
-        send_email, new_user.email, new_user.username, request.base_url
-    )
+        send_email, new_user.email, new_user.username, str(request.base_url)
+    )  # передає урл, на який потрібно перейти для підтверження акаунту
 
     return UserResponse(
         id=new_user.id,
@@ -90,24 +90,6 @@ async def login(
     }
 
 
-@router.post("/request_email")
-async def request_email(
-    body: RequestEmail,
-    background_tasks: BackgroundTasks,
-    request: Request,
-    db: Session = Depends(get_db),
-):
-    user = await repository_users.get_user_by_email(body.email, db)
-
-    if user.confirmed:
-        return {"message": "Your email is already confirmed"}
-    if user:
-        background_tasks.add_task(
-            send_email, user.email, user.username, request.base_url
-        )
-    return {"message": "Check your email for confirmation."}
-
-
 @router.get("/confirmed_email/{token}")
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
     email = await auth_servise.get_email_from_token(token)
@@ -146,11 +128,19 @@ async def refresh_token(
     }
 
 
-# @router.get("/")
-# async def root():
-#     return {"message": "Hello World"}
+@router.post("/request_email")
+async def request_email(
+    body: RequestEmail,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = await repository_users.get_user_by_email(body.email, db)
 
-
-# @router.get("/secret")
-# async def read_item(current_user: User = Depends(get_current_user)):
-#     return {"message": "secret router", "owner": current_user.email}
+    if user:
+        if user.confirmed:
+            return {"message": "Your email is already confirmed"}
+        background_tasks.add_task(
+            send_email, user.email, user.username, request.base_url
+        )
+    return {"message": "Check your email for confirmation."}

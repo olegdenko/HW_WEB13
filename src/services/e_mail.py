@@ -7,6 +7,7 @@ from pydantic import EmailStr
 from src.services.auth import auth_servise
 from src.conf.config import settings
 
+
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.mail_username,
     MAIL_PASSWORD=settings.mail_password,
@@ -41,3 +42,10 @@ async def send_email(email: EmailStr, username: str, host: str):
         await fm.send_message(message, template_name="email_template.html")
     except ConnectionErrors as err:
         print(err)
+
+
+async def send_reset_password_email(email: str, token: str):
+    subject = "Reset Password"
+    host = settings.frontend_url  # TODO переробити форму урла в листі
+    username = ""  # TODO Отриматb ім'я користувача
+    await send_email(email, username, host, token, subject)

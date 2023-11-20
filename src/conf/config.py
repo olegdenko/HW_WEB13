@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import EmailStr
 
 
 class Settings(BaseSettings):
@@ -18,6 +19,8 @@ class Settings(BaseSettings):
     postgres_password: str
     postgres_port: int
     postgres_host: str
+    # email_sender: EmailStr
+    # sendgrid_api_key: str
 
     class Config:
         env_file = ".env"
