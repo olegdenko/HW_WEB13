@@ -11,6 +11,7 @@ from starlette import status
 
 from src.database.models import User
 from src.database.db import get_db
+from src.conf.config import settings
 
 
 class Hash:
@@ -23,8 +24,8 @@ class Hash:
         return self.pwd_context.hash(password)
 
 
-SECRET_KEY = "secret_key"
-ALGORITHM = "HS256"
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 

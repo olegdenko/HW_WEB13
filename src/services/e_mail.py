@@ -12,7 +12,6 @@ conf = ConnectionConfig(
     MAIL_USERNAME=settings.mail_username,
     MAIL_PASSWORD=settings.mail_password,
     MAIL_FROM=settings.mail_from,
-    # MAIL_FROM="olegdenko@meta.ua",
     MAIL_PORT=settings.mail_port,
     MAIL_SERVER=settings.mail_server,
     MAIL_FROM_NAME="Denko",

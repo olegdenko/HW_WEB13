@@ -1,3 +1,4 @@
+import re
 import logging
 import redis.asyncio as redis
 import asyncio
@@ -17,15 +18,15 @@ from fastapi_limiter.depends import RateLimiter
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.database.db import get_db
-from src.routes import auth, notes, tags, contacts
+from src.routes import auth, notes, tags, contacts, users
 from src.conf.config import settings
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 app = FastAPI()
-origins = ["http://localhost:3000"]
-# origins = ["*"]
+origins = ["*"]
+user_agent_ban_list = [] #[r"Gecko"]
 banned_ips = [
     ip_address("192.168.1.1"),
     ip_address("192.168.1.2"),
@@ -48,6 +49,7 @@ app.include_router(auth.router, prefix="/api")
 # app.include_router(tags.router, prefix="/api")
 # app.include_router(notes.router, prefix="/api")
 app.include_router(contacts.router, prefix="/api")
+app.include_router(users.router, prefix='/api')
 
 templates = Jinja2Templates(directory="templates")
 
@@ -61,8 +63,12 @@ async def ban_ips(request: Request, call_next: Callable):
     ip = ip_address(request.client.host)
     if ip in banned_ips:
         return JSONResponse(
-            status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned"}
+            status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned (IP)"}
         )
+    user_agent = request.headers.get("user-agent")
+    for ban_pattern in user_agent_ban_list:
+        if re.search(ban_pattern, user_agent):
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned (Words)"})
     response = await call_next(request)
     return response
 

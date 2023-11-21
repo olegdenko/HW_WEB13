@@ -103,13 +103,12 @@ async def read_upcoming_birthdays(
     "/",
     response_model=ContactResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(allowed_operation_create)],
+    dependencies=[Depends(allowed_operation_create), Depends(RateLimiter(times=2, seconds=5))]
 )
 async def create_contact(
     body: ContactModel,
     db: Session = Depends(get_db),
-    current_user: User = Depends(auth_servise.get_current_user),
-):
+    current_user: User = Depends(auth_servise.get_current_user)):
     return await repository_contacts.create_contact(body, db)
 
 
